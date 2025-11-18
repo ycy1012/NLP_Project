@@ -117,7 +117,7 @@ sns.heatmap(
     cm,
     annot=True,
     fmt="d",
-    cmap="Blues",
+    cmap="Greens",
     xticklabels=star_labels,
     yticklabels=star_labels,
 )
