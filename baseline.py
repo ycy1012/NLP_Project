@@ -48,9 +48,12 @@ print(classification_report(y_test, y_pred, target_names=target_names))
 # 5. Confusion Matrix Visualization
 conf_mat = confusion_matrix(y_test, y_pred)
 plt.figure(figsize=(8, 6))
-sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Blues', 
+sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Greens', 
             xticklabels=target_names, yticklabels=target_names)
 plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title('Confusion Matrix - Baseline Model')
-plt.show()
+
+# Save the figure
+plt.savefig("confusion_matrix_baseline.png", dpi=300)
+plt.close()
