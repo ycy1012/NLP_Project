@@ -9,7 +9,7 @@ import seaborn as sns
 from datasets import load_dataset
 
 # Load the dataset as requested
-dataset = load_dataset("Yelp/yelp_review_full")
+dataset = load_dataset("yelp_review_full")
 
 # 1. Data Extraction
 # We convert the Hugging Face dataset objects to lists for Scikit-Learn

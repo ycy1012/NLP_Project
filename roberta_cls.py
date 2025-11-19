@@ -109,4 +109,7 @@ sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Greens',
 plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
 plt.title('Confusion Matrix - RoBERTa Model')
-plt.show()
+
+# Save the figure
+plt.savefig("confusion_matrix_roberta_cls.png", dpi=300)
+plt.close()
