@@ -32,7 +32,7 @@ def preprocess(examples):
         examples["text"],
         truncation=True,
         padding=False,   # dynamic padding will be applied by the data collator
-        max_length=128,  # optional: limit max sequence length for efficiency
+        max_length=256,  # optional: limit max sequence length for efficiency
     )
 
 # 5. Apply preprocessing to train, validation, and test splits
