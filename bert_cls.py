@@ -8,7 +8,7 @@ from transformers import (
 )
 import numpy as np
 import evaluate
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report  # <-- add classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -32,7 +32,7 @@ def preprocess(examples):
         examples["text"],
         truncation=True,
         padding=False,   # dynamic padding will be applied by the data collator
-        max_length=256,  # optional: limit max sequence length for efficiency
+        max_length=256,  # limit max sequence length
     )
 
 # 5. Apply preprocessing to train, validation, and test splits
@@ -102,6 +102,11 @@ test_labels = test_outputs.label_ids
 
 # 14. Convert logits to predicted class indices (0–4)
 test_preds = np.argmax(test_logits, axis=-1)
+
+# === NEW: full classification report like in your screenshot ===
+target_names = ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"]
+print("\nFinal Test Results:")
+print(classification_report(test_labels, test_preds, target_names=target_names, digits=2))
 
 # 15. Compute confusion matrix on the test set
 label_ids = [0, 1, 2, 3, 4]
