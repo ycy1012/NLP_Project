@@ -13,7 +13,7 @@ This project investigates rating prediction on the Yelp Review Full dataset. We 
 ## System Requirements
 
 ### Python & Hardware
-* **Python 3.8+** is required.
+* **Python 3.10+** is required.
 * **Hardware:** The **Baseline** model runs on a standard CPU. The **Transformer models** (DistilBERT/RoBERTa) require a GPU (e.g., NVIDIA RTX 5000 or A100) for efficient training.
 
 ### Libraries
