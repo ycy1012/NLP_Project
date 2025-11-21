@@ -5,7 +5,7 @@
 **Date:** November 2025
 
 ## Project Overview
-This project investigates explainable rating prediction on the Yelp Review Full dataset. We compare two problem formulations—**Multi-class Classification** and **Ordinal Regression**—across three different model architectures:
+This project investigates rating prediction on the Yelp Review Full dataset. We compare two problem formulations—**Multi-class Classification** and **Ordinal Regression**—across three different model architectures:
 1.  **Baseline:** TF-IDF + Logistic Regression
 2.  **DistilBERT:** Fine-tuned for classification and regression
 3.  **RoBERTa:** Fine-tuned for classification and regression
@@ -27,5 +27,5 @@ pip install numpy pandas scikit-learn matplotlib seaborn torch transformers data
 
 We use the **Yelp Review Full** dataset.
 
-  * **Source:** [Hugging Face Datasets](https://www.google.com/search?q=https://huggingface.co/datasets/yelp_review_full)
+  * **Source:** [Hugging Face Datasets](https://huggingface.co/datasets/Yelp/yelp_review_full)
   * **Setup:** You do **not** need to download a CSV file manually. The scripts automatically download and cache the data via the `load_dataset('yelp_review_full')` command.
