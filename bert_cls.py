@@ -8,24 +8,24 @@ from transformers import (
 )
 import numpy as np
 import evaluate
-from sklearn.metrics import confusion_matrix, classification_report  # <-- add classification_report
+from sklearn.metrics import confusion_matrix, classification_report 
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# 1. Load the Yelp Review Full dataset
+# Load the Yelp Review Full dataset
 dataset = load_dataset("yelp_review_full")
 
-# 2. Split the original training set into train + validation
+# Split the original training set into train + validation
 train_valid = dataset["train"].train_test_split(test_size=0.1, seed=42)
 train_dataset = train_valid["train"]
 valid_dataset = train_valid["test"]
 test_dataset = dataset["test"]
 
-# 3. Load DistilBERT tokenizer
+# Load DistilBERT tokenizer
 model_name = "distilbert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-# 4. Preprocessing / tokenization function
+# Preprocessing / tokenization function
 def preprocess(examples):
     # Tokenize the raw text; we keep labels as they are (0–4)
     return tokenizer(
@@ -35,21 +35,21 @@ def preprocess(examples):
         max_length=256,  # limit max sequence length
     )
 
-# 5. Apply preprocessing to train, validation, and test splits
+# Apply preprocessing to train, validation, and test splits
 encoded_train = train_dataset.map(preprocess, batched=True)
 encoded_valid = valid_dataset.map(preprocess, batched=True)
 encoded_test  = test_dataset.map(preprocess,  batched=True)
 
-# 6. Data collator for dynamic padding within each batch
+# Data collator for dynamic padding within each batch
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-# 7. Load DistilBERT model for 5-class classification
+# Load DistilBERT model for 5-class classification
 model = AutoModelForSequenceClassification.from_pretrained(
     model_name,
     num_labels=5,  # 5 discrete rating classes (0–4)
 )
 
-# 8. Define metrics for validation (accuracy and macro-F1)
+# Define metrics for validation (accuracy and macro-F1)
 accuracy = evaluate.load("accuracy")
 f1 = evaluate.load("f1")
 
@@ -61,7 +61,7 @@ def compute_metrics(eval_pred):
         "f1_macro": f1.compute(predictions=preds, references=labels, average="macro")["f1"],
     }
 
-# 9. Training arguments (using validation set for evaluation)
+# Training arguments (using validation set for evaluation)
 training_args = TrainingArguments(
     output_dir="./yelp_distilbert_cls",
     eval_strategy="epoch",           # evaluate at the end of each epoch on validation
@@ -77,7 +77,7 @@ training_args = TrainingArguments(
     greater_is_better=True,
 )
 
-# 10. Create Trainer with train = train split, eval = validation split
+# Create Trainer with train = train split, eval = validation split
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -88,34 +88,33 @@ trainer = Trainer(
     compute_metrics=compute_metrics,
 )
 
-# 11. Train the model
+# Train the model
 trainer.train()
 
-# 12. Evaluate on the validation set (optional, for logging)
+# Evaluate on the validation set (optional, for logging)
 print("Validation performance:")
 print(trainer.evaluate())
 
-# 13. Predict on the held-out test set
+# Predict on the held-out test set
 test_outputs = trainer.predict(encoded_test)
 test_logits = test_outputs.predictions
 test_labels = test_outputs.label_ids
 
-# 14. Convert logits to predicted class indices (0–4)
+# Convert logits to predicted class indices (0–4)
 test_preds = np.argmax(test_logits, axis=-1)
 
-# === NEW: full classification report like in your screenshot ===
 target_names = ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"]
 print("\nFinal Test Results:")
 print(classification_report(test_labels, test_preds, target_names=target_names, digits=2))
 
-# 15. Compute confusion matrix on the test set
+# Compute confusion matrix on the test set
 label_ids = [0, 1, 2, 3, 4]
 cm = confusion_matrix(test_labels, test_preds, labels=label_ids)
 
 print("Confusion matrix on the test set (rows = true labels, columns = predicted labels):")
 print(cm)
 
-# 16. Plot confusion matrix as a heatmap and SAVE as PNG
+# Plot confusion matrix as a heatmap and SAVE as PNG
 plt.figure(figsize=(6, 5))
 star_labels = [str(l + 1) for l in label_ids]  # display 1–5 instead of 0–4
 sns.heatmap(

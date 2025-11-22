@@ -11,7 +11,7 @@ from datasets import load_dataset
 # Load the dataset as requested
 dataset = load_dataset("yelp_review_full")
 
-# 1. Data Extraction
+# Data Extraction
 # We convert the Hugging Face dataset objects to lists for Scikit-Learn
 print("Extracting data...")
 X_train = dataset['train']['text']
@@ -23,7 +23,7 @@ y_test = dataset['test']['label']
 # 0 = 1 star, 4 = 5 stars. We will map them for clearer reporting later.
 target_names = ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars']
 
-# 2. Build the Pipeline
+# Build the Pipeline
 # TfidfVectorizer: Converts text to numerical vectors.
 
 pipeline = Pipeline([
@@ -31,11 +31,11 @@ pipeline = Pipeline([
     ('clf', LogisticRegression(max_iter=1000, n_jobs=-1, C=1.0))
 ])
 
-# 3. Train the Model
+# Train the Model
 print("Training baseline model (this may take a few minutes)...")
 pipeline.fit(X_train, y_train)
 
-# 4. Evaluation
+# Evaluation
 print("Evaluating on test set...")
 y_pred = pipeline.predict(X_test)
 
@@ -45,7 +45,7 @@ print(f"Baseline Accuracy: {acc:.4f}")
 print("\nClassification Report:")
 print(classification_report(y_test, y_pred, target_names=target_names))
 
-# 5. Confusion Matrix Visualization
+# Confusion Matrix Visualization
 conf_mat = confusion_matrix(y_test, y_pred)
 plt.figure(figsize=(8, 6))
 sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Greens', 

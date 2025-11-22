@@ -11,15 +11,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datasets import load_dataset, Value
 
-# 1. Load the dataset
+# Load the dataset
 dataset = load_dataset("yelp_review_full")
 
-# --- CHANGE 1: Cast labels to float for Regression ---
-# This is critical: Regression requires continuous targets (float), not integers.
+# Cast labels to float for Regression
 dataset["train"] = dataset["train"].cast_column("label", Value("float32"))
 dataset["test"] = dataset["test"].cast_column("label", Value("float32"))
 
-# 2. Split training set: 90% Train, 10% Validation (Same as your original code)
+# Split training set: 90% Train, 10% Validation
 train_val_split = dataset['train'].train_test_split(test_size=0.1, seed=42)
 
 dataset_split = {
@@ -30,20 +29,18 @@ dataset_split = {
 
 print(f"Data Split Sizes: Train={len(dataset_split['train'])}, Val={len(dataset_split['validation'])}, Test={len(dataset_split['test'])}")
 
-# 3. Tokenization using RoBERTa tokenizer
+# Tokenization using RoBERTa tokenizer
 tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
 def tokenize_function(examples):
-    # Keeping your original 512 length for fairness against your classification model
     return tokenizer(examples['text'], padding="max_length", truncation=True, max_length=512)
 
 tokenized_datasets = {}
 for split in dataset_split:
     tokenized_datasets[split] = dataset_split[split].map(tokenize_function, batched=True)
-    # We keep labels as float32 here
     tokenized_datasets[split].set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
 
-# --- CHANGE 2: Regression Metrics ---
+# Regression Metrics
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     # Squeeze ensures dimensions match: (Batch_Size, 1) -> (Batch_Size,)
@@ -60,19 +57,18 @@ def compute_metrics(eval_pred):
     
     return {
         'mse': mse,
-        'accuracy': acc  # This is the "Star Accuracy"
+        'accuracy': acc
     }
 
-# --- CHANGE 3: Model Configured for Regression ---
+# Model Configured for Regression
 print("Initializing RoBERTa Regression Model...")
 model = RobertaForSequenceClassification.from_pretrained(
     'roberta-base', 
-    num_labels=1  # Single output neuron
+    num_labels=1 
 )
-# Explicitly tell Hugging Face to use MSELoss
 model.config.problem_type = "regression"
 
-# --- CHANGE 4: Training Arguments for Regression ---
+# Training Arguments for Regression
 training_args = TrainingArguments(
     output_dir='./results_roberta_regression',
     learning_rate=2e-5,
@@ -118,7 +114,6 @@ test_preds_continuous = np.squeeze(test_output.predictions)
 test_labels = test_output.label_ids
 
 # Round predictions for Visualization (Confusion Matrix)
-# This effectively converts the regression output back to classification buckets
 test_preds_rounded = np.clip(np.rint(test_preds_continuous), 0, 4)
 
 # Print MSE and Accuracy
@@ -129,7 +124,6 @@ print(f"MSE: {final_mse:.4f}")
 print(f"Rounded Accuracy: {final_acc:.4f}")
 
 # Plot Confusion Matrix
-# We use the rounded predictions to generate the heatmap
 conf_mat = confusion_matrix(test_labels, test_preds_rounded)
 
 plt.figure(figsize=(10, 8))
@@ -139,7 +133,4 @@ sns.heatmap(conf_mat, annot=True, fmt='d', cmap='Greens',
 plt.xlabel('Predicted Label (Rounded)')
 plt.ylabel('True Label')
 plt.title('Confusion Matrix - RoBERTa Regression Model')
-
-# Save the figure
-plt.savefig("confusion_matrix_roberta_reg.png", dpi=300)
-plt.close()
+plt.show()
